@@ -50,6 +50,7 @@ services:
       REDIS_HOST: redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       APP_BASE_URL: ${APP_BASE_URL}
+      BOT_OWNER_ID: ${BOT_OWNER_ID}
     volumes:
       - uploads_data:/app/uploads
     depends_on:

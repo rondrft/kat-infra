@@ -16,6 +16,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - kat-net
 
   redis:
     image: redis:7-alpine
@@ -30,6 +32,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - kat-net
 
   kat-backend:
     build:
@@ -58,7 +62,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
+    networks:
+      - kat-net
 
   kat-bot:
     build:
@@ -81,10 +93,22 @@ services:
       redis:
         condition: service_healthy
       kat-backend:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8081/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
+    networks:
+      - kat-net
 
 volumes:
   postgres_data:
   uploads_data:
   redis_data:
+
+networks:
+  kat-net:
+    driver: bridge

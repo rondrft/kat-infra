@@ -1,8 +1,15 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   postgres:
     image: postgres:16
     container_name: kat-postgres
+    restart: always
     environment:
       POSTGRES_DB: kat_db
       POSTGRES_USER: ${DB_USERNAME}
@@ -16,12 +23,23 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    logging: *default-logging
     networks:
       - kat-net
 
   redis:
     image: redis:7-alpine
     container_name: kat-redis
+    restart: always
     ports:
       - "6379:6379"
     volumes:
@@ -32,6 +50,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+    logging: *default-logging
     networks:
       - kat-net
 
@@ -40,6 +68,7 @@ services:
       context: ../kat-backend
       dockerfile: Dockerfile
     container_name: kat-backend
+    init: true
     ports:
       - "8080:8080"
     environment:
@@ -55,6 +84,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       APP_BASE_URL: ${APP_BASE_URL}
       BOT_OWNER_ID: ${BOT_OWNER_ID}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
     volumes:
       - uploads_data:/app/uploads
     depends_on:
@@ -69,6 +99,15 @@ services:
       retries: 3
       start_period: 30s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+    logging: *default-logging
     networks:
       - kat-net
 
@@ -77,6 +116,7 @@ services:
       context: ../kat-bot
       dockerfile: Dockerfile
     container_name: kat-bot
+    init: true
     ports:
       - "8081:8081"
     environment:
@@ -95,12 +135,21 @@ services:
       kat-backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --spider -q http://localhost:8081/health || exit 1"]
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8081/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 30s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    logging: *default-logging
     networks:
       - kat-net
 

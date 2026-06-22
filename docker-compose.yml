@@ -70,7 +70,7 @@ services:
     container_name: kat-backend
     init: true
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       DB_HOST: postgres
       DB_USERNAME: ${DB_USERNAME}
@@ -91,6 +91,7 @@ services:
       MERCADOPAGO_WEBHOOK_SECRET: ${MERCADOPAGO_WEBHOOK_SECRET}
       MERCADOPAGO_NOTIFICATION_URL: ${MERCADOPAGO_NOTIFICATION_URL}
       MERCADOPAGO_CURRENCY_ID: ${MERCADOPAGO_CURRENCY_ID}
+      APP_COOKIE_SECURE: "true"
     volumes:
       - uploads_data:/app/uploads
     depends_on:

@@ -14,10 +14,12 @@ services:
       POSTGRES_DB: kat_db
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      KAT_APP_PASSWORD: ${KAT_APP_PASSWORD}
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d kat_db"]
       interval: 5s
@@ -75,6 +77,8 @@ services:
       DB_HOST: postgres
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      KAT_APP_USER: kat_app
+      KAT_APP_PASSWORD: ${KAT_APP_PASSWORD}
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
       DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}

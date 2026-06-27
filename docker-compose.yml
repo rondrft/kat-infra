@@ -138,6 +138,7 @@ services:
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
       REDIS_HOST: redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      DEV_GUILD_ID: ${DEV_GUILD_ID:-1506116208909357146}
     depends_on:
       postgres:
         condition: service_healthy
